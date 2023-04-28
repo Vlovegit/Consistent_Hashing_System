@@ -38,7 +38,7 @@ public class NameServerUtils extends Thread implements Serializable  {
 				
 				{
 				
-					case "entry":
+					case "newServer":
 								//System.out.println("In serverSocket 2");
 								int newNameServerId = Integer.parseInt(nameServerArgs[1]);
 								String newNameServerAddress = nameServerArgs[2];
@@ -86,7 +86,7 @@ public class NameServerUtils extends Thread implements Serializable  {
 									ObjectInputStream successorInputStream = new ObjectInputStream(successorSocket.getInputStream());
 									ObjectOutputStream successorOutputStream = new ObjectOutputStream(successorSocket.getOutputStream());
 									
-									successorOutputStream.writeObject("entry "+newNameServerId + " "+ newNameServerAddress + " " + newNameServerPort);
+									successorOutputStream.writeObject("newServer "+newNameServerId + " "+ newNameServerAddress + " " + newNameServerPort);
 									
 									int sPort = (int) successorInputStream.readObject();
 									objectOutputStream.writeObject(sPort);//send successor port
@@ -135,7 +135,7 @@ public class NameServerUtils extends Thread implements Serializable  {
 										objectOutputStream.writeObject(trackServer);
 										break;
 				
-					case "Insert":
+					case "insert":
 										System.out.println("Insert key in Server Id : " + nameServer.nsDetails.id);
 										key = Integer.parseInt(nameServerArgs[1]);
 										String insertValue = nameServerArgs[2];
@@ -151,7 +151,7 @@ public class NameServerUtils extends Thread implements Serializable  {
 				
 					
 					
-					case "entryAtLast":
+					case "newServerLast":
 										System.out.println("In Server Id " + nameServer.nsDetails.id + " entering at last position");
 										
 										newNameServerId = Integer.parseInt(nameServerArgs[1]);
@@ -166,7 +166,7 @@ public class NameServerUtils extends Thread implements Serializable  {
 											successorSocket = new Socket(successorAddress, successorPort);
 											ObjectInputStream successorInputStream = new ObjectInputStream(successorSocket.getInputStream());
 											ObjectOutputStream successorOutputStream = new ObjectOutputStream(successorSocket.getOutputStream());
-											successorOutputStream.writeObject("entryAtLast "+newNameServerId + " "+ newNameServerAddress + " " + newNameServerPort);
+											successorOutputStream.writeObject("newServerLast "+newNameServerId + " "+ newNameServerAddress + " " + newNameServerPort);
 											
 											successorPort = (int) successorInputStream.readObject();
 											int pPort = (int) successorInputStream.readObject();
@@ -200,9 +200,9 @@ public class NameServerUtils extends Thread implements Serializable  {
 										}
 										break;
 					
-					case "updateYourPredessorAndTakeAllKeys":
+					case "updatePredecessor":
 										
-										System.out.println("In Successor to updateYourPredessorAndTakeAllKeys"); // to check this
+										System.out.println("In Successor Name Server to Update Predecessor"); // to check this
 										
 										int pPort = (int) objectInputStream.readObject();	//Update successor port
 										int pId = (int) objectInputStream.readObject();	//Update successor id
@@ -223,9 +223,9 @@ public class NameServerUtils extends Thread implements Serializable  {
 										break;
 				
 				
-					case "updateYourSuccessor":
+					case "updateSuccessor":
 										
-										System.out.println("In Predessor to updateYourSuccessor");
+										System.out.println("In Predessor Server to Update Successor");
 										int sPort = (int) objectInputStream.readObject();	//Update predecessor port in current Nameserver
 										int sId = (int) objectInputStream.readObject();	//Update predecessor id in current Nameserver
 										String successorIP = (String) objectInputStream.readObject();	//Update predecessor address in current Nameserver

@@ -40,7 +40,7 @@ public class NameServer implements Serializable  {
 							objectOutputStream = new  ObjectOutputStream(socket.getOutputStream());
 							objectInputStream = new ObjectInputStream(socket.getInputStream());
 							String nameServerIP = Inet4Address.getLocalHost().getHostAddress();
-							objectOutputStream.writeObject("entry "+id + " "+ nameServerIP + " " + listeningPort);
+							objectOutputStream.writeObject("newServer "+id + " "+ nameServerIP + " " + listeningPort);
 							
 							bAddress = (String) objectInputStream.readObject();
 							bPort = (int) objectInputStream.readObject();
@@ -81,7 +81,7 @@ public class NameServer implements Serializable  {
 							objectInputStream = new ObjectInputStream(socket.getInputStream());
 							
 							System.out.println("Setting predecessor details to successor of " + nameServer.nsDetails.id);
-							objectOutputStream.writeObject("updateYourPredessorAndTakeAllKeys");
+							objectOutputStream.writeObject("updatePredecessor");
 							objectOutputStream.writeObject(nameServer.nsDetails.pPort);//send Predecessor Port to successor
 							objectOutputStream.writeObject(nameServer.nsDetails.pId);//Send Predecessor Id to successor
 							objectOutputStream.writeObject(nameServer.nsDetails.pAddress);//Send Predecessor Address to successor
@@ -104,7 +104,7 @@ public class NameServer implements Serializable  {
 							objectOutputStream = new  ObjectOutputStream(socket.getOutputStream());
 							objectInputStream = new ObjectInputStream(socket.getInputStream());
 							
-							objectOutputStream.writeObject("updateYourSuccessor");
+							objectOutputStream.writeObject("updateSuccessor");
 							objectOutputStream.writeObject(nameServer.nsDetails.sPort);//send successor port
 							objectOutputStream.writeObject(nameServer.nsDetails.sId);//send successor id
 							objectOutputStream.writeObject(nameServer.nsDetails.sAddress);//send successor Address
@@ -127,6 +127,7 @@ public class NameServer implements Serializable  {
 		
 		}while(!command.equals("exit"));
 		System.out.println("NameServer " + id + " Exited Successfully");
+		System.exit(0);
 	}
 
 	String insertKeyValue(int key, String value) throws IOException, ClassNotFoundException, UnknownHostException{
@@ -149,7 +150,7 @@ public class NameServer implements Serializable  {
 				successorSocket = new Socket(nsDetails.getSuccessorAddress(), nsDetails.sPort);
 				ObjectInputStream successorInputStream = new ObjectInputStream(successorSocket.getInputStream());
 				ObjectOutputStream successorOutputStream = new ObjectOutputStream(successorSocket.getOutputStream());
-				successorOutputStream.writeObject("Insert "+key+" "+value);
+				successorOutputStream.writeObject("insert "+key+" "+value);
 				successorOutputStream.writeObject(nsDetails.id);
 				value = (String) successorInputStream.readObject();
 				successorSocket.close();
