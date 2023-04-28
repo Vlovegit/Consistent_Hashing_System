@@ -30,7 +30,7 @@ public class NameServerUtils extends Thread implements Serializable  {
 				objectInputStream = new ObjectInputStream(socket.getInputStream());
 		    	String nameServerInfo = (String) objectInputStream.readObject();
 				String[] nameServerArgs = nameServerInfo.split(" ");
-				System.out.println("Current command : "+nameServerArgs[0]);
+				System.out.println("Current command : "+nameServerInfo);
 				
 				String successorAddress;
 				int successorPort;
