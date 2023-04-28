@@ -8,7 +8,7 @@ import java.util.*;
 public class BootstrapMain implements Serializable  {
 
     static int counter = 0; //count
-	private static int serverIDForConn; //serverPortForConnection ????
+	private static int sPortConnection; //serverPortForConnection ????
 	static Socket socket = null;
 	static Socket forwardSocket = null; //fwdSocket
     private static ServerSocket serverSocket; //server
@@ -18,8 +18,8 @@ public class BootstrapMain implements Serializable  {
 	NameServerDetails nsDetails;
 
 	public BootstrapMain(){
-		nsDetails = new NameServerDetails(0,serverIDForConn);
-		System.out.println(nsDetails.serverIDForConn); //serverPortForConnection
+		nsDetails = new NameServerDetails(0,sPortConnection);
+		System.out.println(nsDetails.sPortConnection); //serverPortForConnection
 		System.out.println(nsDetails.id); //id not changed
 		serverIDArray.add(0);
 	}
@@ -34,7 +34,7 @@ public class BootstrapMain implements Serializable  {
 		//else contact successor
 		//System.out.println(nsInfo.getSuccessorIP());
 	//	System.out.println(nsInfo.successorPortListning);
-		 forwardSocket = new Socket(nsDetails.getSuccIP(), nsDetails.successorListeningPort); //getSuccessorIP() //successorPortListning
+		 forwardSocket = new Socket(nsDetails.getSuccessorAddress(), nsDetails.sPort); //getSuccessorIP() //successorPortListning
 		 ObjectInputStream fwdInputStream = new ObjectInputStream(forwardSocket.getInputStream());//inputStreamFwd
 		 ObjectOutputStream fwdOutputStream = new ObjectOutputStream(forwardSocket.getOutputStream());
 		 fwdOutputStream.writeObject("lookup "+key);
@@ -73,7 +73,7 @@ public class BootstrapMain implements Serializable  {
 			
 		else {
 		//if no then contact successor
-		 forwardSocket = new Socket(nsDetails.getSuccIP(), nsDetails.successorListeningPort);
+		 forwardSocket = new Socket(nsDetails.getSuccessorAddress(), nsDetails.sPort);
 		 ObjectInputStream fwdInputStream = new ObjectInputStream(forwardSocket.getInputStream());
 		 ObjectOutputStream fwdOutputStream = new ObjectOutputStream(forwardSocket.getOutputStream());
 		 fwdOutputStream.writeObject("Insert "+key+" "+value);
@@ -110,7 +110,7 @@ public class BootstrapMain implements Serializable  {
 		}
 			
 		else {
-		 forwardSocket = new Socket(nsDetails.getSuccIP(), nsDetails.successorListeningPort);
+		 forwardSocket = new Socket(nsDetails.getSuccessorAddress(), nsDetails.sPort);
 		 ObjectInputStream fwdInputStream = new ObjectInputStream(forwardSocket.getInputStream());
 		 ObjectOutputStream fwdOutputStream = new ObjectOutputStream(forwardSocket.getOutputStream());
 		 fwdOutputStream.writeObject("delete "+key);
@@ -156,7 +156,7 @@ public class BootstrapMain implements Serializable  {
 			System.out.print("The name of Configuration file is not provided. Please provide it as a command line arguement");
 			return;
 		}
-		serverIDForConn = 0;
+		sPortConnection = 0;
 		int id = 0;
     
 		File configFile = new File(args[0]); 
@@ -165,8 +165,8 @@ public class BootstrapMain implements Serializable  {
 	
 			Scanner scanner = new Scanner(configFile);
 			id = Integer.parseInt(scanner.nextLine());
-			serverIDForConn = Integer.parseInt(scanner.nextLine());
-			serverSocket = new ServerSocket(serverIDForConn);//server for listing to new name server //not changed
+			sPortConnection = Integer.parseInt(scanner.nextLine());
+			serverSocket = new ServerSocket(sPortConnection);//server for listing to new name server //not changed
 			BootstrapMain bootstrapmain = new BootstrapMain();
 		    while (scanner.hasNextLine()) {
 				String[] nxtline = scanner.nextLine().split(" "); 
@@ -203,7 +203,7 @@ public class BootstrapMain implements Serializable  {
 				case "entry":
 					bootstrapmain.serverIDArray.add(newNameServerId);
 					outputStream.writeObject(Inet4Address.getLocalHost().getHostAddress());
-					outputStream.writeObject(serverIDForConn);
+					outputStream.writeObject(sPortConnection);
 					Collections.sort(bootstrapmain.serverIDArray);
 					String serverTrackString = "0";
 					for(int visitedID : bootstrapmain.serverIDArray)
@@ -211,12 +211,12 @@ public class BootstrapMain implements Serializable  {
 							serverTrackString.concat("->"+visitedID);
 					
 					outputStream.writeObject(serverTrackString);
-					System.out.println("Hello"+bootstrapmain.nsDetails.serverIDForConn);
+					System.out.println("Hello"+bootstrapmain.nsDetails.sPortConnection);
 					System.out.println("Hello"+bootstrapmain.nsDetails.id);
-					if(bootstrapmain.nsDetails.getSuccId() == 0)//if only one server intial //not changed
+					if(bootstrapmain.nsDetails.getSuccessorId() == 0)//if only one server intial //not changed
 					{
-						outputStream.writeObject(bootstrapmain.nsDetails.serverIDForConn);//succssor port
-						outputStream.writeObject(bootstrapmain.nsDetails.serverIDForConn);//predessor port
+						outputStream.writeObject(bootstrapmain.nsDetails.sPortConnection);//succssor port
+						outputStream.writeObject(bootstrapmain.nsDetails.sPortConnection);//predessor port
 						outputStream.writeObject(bootstrapmain.nsDetails.id);//sucessor id
 						outputStream.writeObject(bootstrapmain.nsDetails.id);//predessor id
 						outputStream.writeObject(Inet4Address.getLocalHost().getHostAddress());//successor ip
@@ -239,10 +239,10 @@ public class BootstrapMain implements Serializable  {
 					else if(maximumServerID < newNameServerId) {//this means bootstrap server has keys for this ns i.e enter at last //not changed
 						
 						System.out.println("////>>>>Server with largest value");
-						bootstrapmain.nsDetails.predId = newNameServerId; //update predessor of bootstrap
+						bootstrapmain.nsDetails.pId = newNameServerId; //update predessor of bootstrap
 						
-						int nextServerPortForListening = bootstrapmain.nsDetails.successorListeningPort;
-						String nxtServerIP = bootstrapmain.nsDetails.getSuccIP();
+						int nextServerPortForListening = bootstrapmain.nsDetails.sPort;
+						String nxtServerIP = bootstrapmain.nsDetails.getSuccessorAddress();
 							
 						forwardSocket = new Socket(nxtServerIP, nextServerPortForListening);
 						 
@@ -277,12 +277,12 @@ public class BootstrapMain implements Serializable  {
 					}
 					else {//if new ip is between two servers
 						
-						int nxtServerPortForListening = bootstrapmain.nsDetails.successorListeningPort;
-						String nxtServerIP = bootstrapmain.nsDetails.getSuccIP();
+						int nxtServerPortForListening = bootstrapmain.nsDetails.sPort;
+						String nxtServerIP = bootstrapmain.nsDetails.getSuccessorAddress();
 						
 						//1)if new nameserver is between current server and successor and update the successor of current server
-						 if(bootstrapmain.nsDetails.getSuccId() > newNameServerId)
-							 bootstrapmain.nsDetails.updateInfo(newNSPortForListening,bootstrapmain.nsDetails.predessorListeningPort, newNameServerId, bootstrapmain.nsDetails.predId, newNameServerIP,bootstrapmain.nsDetails.predIP);
+						 if(bootstrapmain.nsDetails.getSuccessorId() > newNameServerId)
+							 bootstrapmain.nsDetails.updateInfo(newNSPortForListening,bootstrapmain.nsDetails.pPort, newNameServerId, bootstrapmain.nsDetails.pId, newNameServerIP,bootstrapmain.nsDetails.pAddress);
 						
 						//2) if new server is not in between,or even if it is between contact the next nameserver
 						 forwardSocket = new Socket(nxtServerIP, nxtServerPortForListening);
@@ -332,7 +332,7 @@ public class BootstrapMain implements Serializable  {
 					int predessorPortForListning = (int) inputStream.readObject();//update successor port
 					int predId = (int) inputStream.readObject();//update successor id
 					String predIP = (String) inputStream.readObject();//update successor ip
-					bootstrapmain.nsDetails.updateInfo(bootstrapmain.nsDetails.successorListeningPort, predessorPortForListning, bootstrapmain.nsDetails.getSuccId(), predId,bootstrapmain.nsDetails.successorIP,predIP);
+					bootstrapmain.nsDetails.updateInfo(bootstrapmain.nsDetails.sPort, predessorPortForListning, bootstrapmain.nsDetails.getSuccessorId(), predId,bootstrapmain.nsDetails.sAddress,predIP);
 					while(true) {
 						
 						int key =  (int) inputStream.readObject();
@@ -344,7 +344,7 @@ public class BootstrapMain implements Serializable  {
 						System.out.println("Key : "+key+" Value : "+value);
 						
 					}
-					System.out.println("Updated Informatio successorId" + bootstrapmain.nsDetails.successorId);
+					System.out.println("Updated Informatio successorId" + bootstrapmain.nsDetails.sId);
 					
 					break;
 				
@@ -353,7 +353,7 @@ public class BootstrapMain implements Serializable  {
 					int succPort = (int) inputStream.readObject();//update predessor port
 					int succId = (int) inputStream.readObject();//update predessor id
 					String succIP = (String) inputStream.readObject();//update predessor ip
-					bootstrapmain.nsDetails.updateInfo(succPort, bootstrapmain.nsDetails.predessorListeningPort,succId, bootstrapmain.nsDetails.predId, succIP,bootstrapmain.nsDetails.predIP);
+					bootstrapmain.nsDetails.updateInfo(succPort, bootstrapmain.nsDetails.pPort,succId, bootstrapmain.nsDetails.pId, succIP,bootstrapmain.nsDetails.pAddress);
 				break;
 				
 				case "updateMaxServerID":
@@ -364,7 +364,7 @@ public class BootstrapMain implements Serializable  {
 				
 				}
 				maximumServerID = Collections.max(bootstrapmain.serverIDArray);
-				System.out.println("BOOTSTRAP SuccessorId : "+bootstrapmain.nsDetails.successorId + " PredessorId :"+bootstrapmain.nsDetails.predId);
+				System.out.println("BOOTSTRAP SuccessorId : "+bootstrapmain.nsDetails.sId + " PredessorId :"+bootstrapmain.nsDetails.pId);
 				
 
 		    }
