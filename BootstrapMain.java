@@ -30,7 +30,15 @@ public class BootstrapMain implements Serializable  {
 			System.out.println("////>>>>Visited Server 0"  );
 			return (hashmap.get(key));
 		}
-			
+		if (nsDetails.sId == 0 && nsDetails.pId == 0)
+		{
+			System.out.println("////>>>>Visited Server 0"  );
+			return "Key Not Found";
+		}
+		if(key > nsDetails.pId)
+		{
+			return "Key Not Found";
+		}
 		//else contact successor
 		//System.out.println(nsInfo.getSuccessorIP());
 	//	System.out.println(nsInfo.successorPortListning);
@@ -211,8 +219,8 @@ public class BootstrapMain implements Serializable  {
 							serverTrackString.concat("->"+visitedID);
 					
 					outputStream.writeObject(serverTrackString);
-					System.out.println("New Name Server started on Port : "+bootstrapmain.nsDetails.sPortConnection);
-					System.out.println("New Name Server Id : "+bootstrapmain.nsDetails.id);
+					System.out.println("New Name Server Id : "+newNameServerId);
+					System.out.println("New Name Server started on Port : "+newNSPortForListening);
 					if(bootstrapmain.nsDetails.getSuccessorId() == 0)//if only one server intial //not changed
 					{
 						outputStream.writeObject(bootstrapmain.nsDetails.sPortConnection);//succssor port

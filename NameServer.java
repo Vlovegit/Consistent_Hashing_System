@@ -71,6 +71,13 @@ public class NameServer implements Serializable  {
 							thread.start();
 							System.out.println("Name Server Added Successfully");
 							System.out.println("Name Server "+ id + " manages range from "+ predessorId +" to "+id);
+							System.out.println("[");
+							for (Map.Entry<Integer, String> entry : hashTable.entrySet()) {
+								Integer key = entry.getKey();
+								String value = entry.getValue();
+								System.out.println(key + " : " + value);
+							}
+							System.out.println("]");
 							System.out.println("Servers in line " + trackServer);
 							break;
 			
