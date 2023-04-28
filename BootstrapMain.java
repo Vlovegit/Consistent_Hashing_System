@@ -180,6 +180,22 @@ public class BootstrapMain implements Serializable  {
 				String[] nxtline = scanner.nextLine().split(" "); 
 				bootstrapmain.hashmap.put(Integer.parseInt(nxtline[0]),nxtline[1]);
 		    }
+
+			//NEW CODE TO print
+
+			System.out.println("Contents of the Configuration file:");
+			System.out.println("[");
+			for (Map.Entry<Integer, String> entry : bootstrapmain.hashmap.entrySet()) {
+				Integer key = entry.getKey();
+				String value = entry.getValue();
+				System.out.println(key + " : " + value);
+			}
+			System.out.println("]");
+
+
+
+
+			///NEW CODE END
 		    
 		    BootstrapUI btStrapUI = new BootstrapUI(bootstrapmain);
 		    btStrapUI.start();
