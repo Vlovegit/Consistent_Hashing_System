@@ -41,7 +41,7 @@ public class BootstrapUI extends Thread implements Serializable {
 				}
 				break;
 				
-			case "Insert":
+			case "insert":
 				try {
 					bootstrapmain.insert(Integer.parseInt(cmdValue[1]), cmdValue[2]);
 				} catch (NumberFormatException | IOException | ClassNotFoundException  e) {
