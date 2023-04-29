@@ -28,6 +28,7 @@ public class NameServer implements Serializable  {
 		Scanner sc = new Scanner(System.in);
 		NameServer nameServer = new NameServer();
 		nameServer.nsDetails = new NameServerDetails(id, listeningPort);
+		//while(true) {
 		do {
 			System.out.print("NameServer " + id + " >> ");
 			command = sc.nextLine();
@@ -83,11 +84,15 @@ public class NameServer implements Serializable  {
 			
 			case "exit":
 							System.out.println("Surrender all the keys and update the predecessor");
+							System.out.println("Successor Address : "+ nameServer.nsDetails.sAddress + " Success Port : " + nameServer.nsDetails.sPort);
 							socket = new Socket(nameServer.nsDetails.sAddress, nameServer.nsDetails.sPort);
 							objectOutputStream = new  ObjectOutputStream(socket.getOutputStream());
 							objectInputStream = new ObjectInputStream(socket.getInputStream());
 							
 							System.out.println("Setting predecessor details to successor of " + nameServer.nsDetails.id);
+							System.out.println("Predecessor Port : "+ nameServer.nsDetails.pPort);
+							System.out.println("Predecessor Id : "+ nameServer.nsDetails.pId);
+							System.out.println("Predecessor Address : "+ nameServer.nsDetails.pAddress);
 							objectOutputStream.writeObject("updatePredecessor");
 							objectOutputStream.writeObject(nameServer.nsDetails.pPort);//send Predecessor Port to successor
 							objectOutputStream.writeObject(nameServer.nsDetails.pId);//Send Predecessor Id to successor
@@ -95,6 +100,7 @@ public class NameServer implements Serializable  {
 							
 							for(int key = nameServer.nsDetails.pId; key < nameServer.nsDetails.id; key++) {
 								if(nameServer.hashTable.containsKey(key)) {
+									System.out.println("Trasfering Key : "+ key + " to " + nameServer.nsDetails.sId);
 									objectOutputStream.writeObject(key);
 									objectOutputStream.writeObject(nameServer.hashTable.get(key));
 									nameServer.hashTable.remove(key);
@@ -110,7 +116,9 @@ public class NameServer implements Serializable  {
 							socket = new Socket(nameServer.nsDetails.pAddress, nameServer.nsDetails.pPort);
 							objectOutputStream = new  ObjectOutputStream(socket.getOutputStream());
 							objectInputStream = new ObjectInputStream(socket.getInputStream());
-							
+							System.out.println("Successor Port : "+ nameServer.nsDetails.sPort);
+							System.out.println("Successor Id : "+ nameServer.nsDetails.sId);
+							System.out.println("Successor Address : "+ nameServer.nsDetails.sAddress);
 							objectOutputStream.writeObject("updateSuccessor");
 							objectOutputStream.writeObject(nameServer.nsDetails.sPort);//send successor port
 							objectOutputStream.writeObject(nameServer.nsDetails.sId);//send successor id
@@ -122,16 +130,17 @@ public class NameServer implements Serializable  {
 							
 							socket = new Socket(bAddress, bPort);
 							objectOutputStream = new  ObjectOutputStream(socket.getOutputStream());
-							objectOutputStream.writeObject("updateMaxServerID");
+							objectOutputStream.writeObject("updateSID");
 							objectOutputStream.writeObject(id);
 							socket.close();
+							//System.out.println("NameServer " + id + " Exited Successfully");
 							break;
 			
 			default:		System.out.println("Invalid Command Entered. Please try again");
 			}
 
 			System.out.println(" NameServer Successor Id is "+nameServer.nsDetails.sId + " and Predessor Id is "+nameServer.nsDetails.pId);
-		
+		//}
 		}while(!command.equals("exit"));
 		System.out.println("NameServer " + id + " Exited Successfully");
 		System.exit(0);

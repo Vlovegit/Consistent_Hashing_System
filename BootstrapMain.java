@@ -204,7 +204,7 @@ public class BootstrapMain implements Serializable  {
 				int newNSPortForListening = 0;
 				String newNameServerIP = "";
 				if(!nameServerDetailsStr[0].equals("updatePredecessor")) { 
-					if( !nameServerDetailsStr[0].equals("updateSuccessor") && !nameServerDetailsStr[0].equals("updateMaxServerID") ) {
+					if( !nameServerDetailsStr[0].equals("updateSuccessor") && !nameServerDetailsStr[0].equals("updateSID") ) {
 						newNameServerId = Integer.parseInt(nameServerDetailsStr[1]);
 						newNameServerIP = nameServerDetailsStr[2];
 						newNSPortForListening = Integer.parseInt(nameServerDetailsStr[3]);
@@ -345,34 +345,41 @@ public class BootstrapMain implements Serializable  {
 				case "updatePredecessor":
 					System.out.println("////>>>>In Successor to updatePredecessor");
 					
-					int predecessorPortForListning = (int) inputStream.readObject();//updating the successor port
-					int predId = (int) inputStream.readObject();//updating the successor id
-					String predIP = (String) inputStream.readObject();//updating the successor ip
-					bootstrapmain.nsDetails.updateInfo(bootstrapmain.nsDetails.sPort, predecessorPortForListning, bootstrapmain.nsDetails.getSuccessorId(), predId,bootstrapmain.nsDetails.sAddress,predIP);
+					int pPortForListening = (int) inputStream.readObject();
+					int predId = (int) inputStream.readObject();
+					String predIP = (String) inputStream.readObject();
+					System.out.println("Updating predecessor Port : " + pPortForListening);
+					System.out.println("Updating predecessor Id : " + predId);
+					System.out.println("Updating predecessor Address : " + predIP);
+					bootstrapmain.nsDetails.updateInfo(bootstrapmain.nsDetails.sPort, pPortForListening, bootstrapmain.nsDetails.getSuccessorId(), predId,bootstrapmain.nsDetails.sAddress,predIP);
 					while(true) {
 						
 						int key =  (int) inputStream.readObject();
 						if(key == -1)
 							break;
-						
 						String value = (String) inputStream.readObject();
+						System.out.println(key + " : " + value + " inserted in " + bootstrapmain.nsDetails.id);
 						bootstrapmain.hashmap.put(key, value);
 						System.out.println(">>>> "+key+" --> "+value);
 						
 					}
-					System.out.println("Updated Information successorId" + bootstrapmain.nsDetails.sId);
+					System.out.println("Successor Id updated to : " + bootstrapmain.nsDetails.sId);
 					
 					break;
 				
 				case "updateSuccessor":
-					System.out.println("In Predecessor to updateSuccessor");
-					int succPort = (int) inputStream.readObject();//updating the  predecessor port
-					int succId = (int) inputStream.readObject();//updating the predecessor id
-					String succIP = (String) inputStream.readObject();//updating the predecessor ip
+					System.out.println("////>>>>In Predecessor to updateSuccessor");
+					
+					int succPort = (int) inputStream.readObject();
+					int succId = (int) inputStream.readObject();
+					String succIP = (String) inputStream.readObject();
+					System.out.println("Updating Successor Port : " + succPort);
+					System.out.println("Updating Successor Id : " + succId);
+					System.out.println("Updating Successor Address : " + succIP);
 					bootstrapmain.nsDetails.updateInfo(succPort, bootstrapmain.nsDetails.pPort,succId, bootstrapmain.nsDetails.pId, succIP,bootstrapmain.nsDetails.pAddress);
 				break;
 				
-				case "updateMaxServerID":
+				case "updateSID":
 					int exitedID = (int) inputStream.readObject();
 					bootstrapmain.serverIDArray.remove(Integer.valueOf(exitedID));
 					System.out.println("Updating the Max Server ID..");

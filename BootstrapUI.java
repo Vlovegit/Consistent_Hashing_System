@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
+import javax.lang.model.util.ElementScanner14;
+
 public class BootstrapUI extends Thread implements Serializable {
 
 	BootstrapMain bootstrapmain;
@@ -25,7 +27,15 @@ public class BootstrapUI extends Thread implements Serializable {
 			case "lookup":
 				//System.out.println("In Lookup");
 				try {
-					System.out.println(bootstrapmain.lookupfunc(Integer.parseInt(cmdValue[1])));
+					String value = bootstrapmain.lookupfunc(Integer.parseInt(cmdValue[1]));
+					if (value.equals("No"))
+					{
+						System.out.println("No key found");
+					}
+					else
+					{System.out.println(bootstrapmain.lookupfunc(Integer.parseInt(cmdValue[1])));
+					}
+					
 				} catch (NumberFormatException e) {
 					
 					e.printStackTrace();
